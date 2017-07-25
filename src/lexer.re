@@ -104,10 +104,9 @@ static int scan(Scanner * s, const char * stop) {
 
 		word = [a-zA-Z] [a-z'’()\[\]{}]*;
 
-		nonword = [^a-zA-Z\x00]+;
+		nonword = [^a-zA-Z\x00:]+;
 
-		subsentence = [:\.;\?!];
-
+		subsentence = [:.;\?!];
 
 		opening_quote 		= ["'] | 
                             "\u20bb" | ([\xc2][\xbb]) |
@@ -156,6 +155,8 @@ static int scan(Scanner * s, const char * stop) {
 		shortwords / (punct* '\x00')		{ return WORD_LAST; }
 
 		shortwords / (punct* end_phrase) { return WORD_LAST; }
+
+		shortwords / ':' 	{ return WORD_LAST; }
 
 		shortwords / subsentence 	{ return WORD_LAST; }
 
@@ -240,6 +241,7 @@ char * title_case_string_len(const char * str, size_t len) {
 		//if (type && s.start != last_stop) {
 		if (s.start != last_stop && stop > last_stop) {
 			d_string_append_c_array(out, last_stop, (int)(s.start - last_stop));
+			fprintf(stderr, "skip: '%.*s'\n", (int)(s.start - last_stop), last_stop);
 		}
 
 		switch (type) {
