@@ -4,11 +4,11 @@
 
 	@file lexer.re
 
-	@brief 
+	@brief
 
 
 	@author	Fletcher T. Penney
-	@bug	
+	@bug
 
 **/
 
@@ -18,30 +18,30 @@
 
 
 	The `c-template` project is released under the MIT License.
-	
+
 	GLibFacade.c and GLibFacade.h are from the MultiMarkdown v4 project:
-	
+
 		https://github.com/fletcher/MultiMarkdown-4/
-	
+
 	MMD 4 is released under both the MIT License and GPL.
-	
-	
+
+
 	CuTest is released under the zlib/libpng license. See CuTest.c for the text
 	of the license.
-	
-	
+
+
 	## The MIT License ##
-	
+
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-	
+
 	The above copyright notice and this permission notice shall be included in
 	all copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -72,7 +72,7 @@
 #define YYCTXMARKER		s->ctx
 
 
-#define print_cap		d_string_append_c(out, toupper(*(s.start))); for (size_t i = (size_t)(s.start + 1 - str); i < (s.cur - str); i++) { d_string_append_c(out, tolower(str[i])); } 
+#define print_cap		d_string_append_c(out, toupper(*(s.start))); for (size_t i = (size_t)(s.start + 1 - str); i < (s.cur - str); i++) { d_string_append_c(out, tolower(str[i])); }
 #define print_lower		d_string_append_c(out, tolower(*(s.start))); d_string_append_c_array(out, s.start + 1, (int)(s.cur - s.start - 1));
 #define print_as_is		d_string_append_c_array(out, s.start, (int)(s.cur - s.start));
 #define print_upper		upper = true; for (size_t i = (size_t)(s.start - str); i < (s.cur - str); i++) { if (str[i] == '\'') {upper = false; } if (upper) {d_string_append_c(out, toupper(str[i]));} else {d_string_append_c(out, str[i]); } }
@@ -80,7 +80,7 @@
 
 static int scan(Scanner * s, const char * stop) {
 
-	scan:
+scan:
 
 	if (s->cur >= stop) {
 		return 0;
@@ -108,22 +108,22 @@ static int scan(Scanner * s, const char * stop) {
 
 		subsentence = [:.;\?!];
 
-		opening_quote 		= ["'] | 
-                            "\u20bb" | ([\xc2][\xbb]) |
-                            "\u2018" | ([\xe2][\x80][\x98]) |
-                            "\u201c" | ([\xe2][\x80][\x9c]) |
-                            "\u201e" | ([\xe2][\x80][\x9e]) |
-                            "\u201a" | ([\xe2][\x80][\x9a]) |
-                            "\u203a" | ([\xe2][\x80][\xba]) ;
+		opening_quote 		= ["'] |
+							"\u20bb" | ([\xc2][\xbb]) |
+							"\u2018" | ([\xe2][\x80][\x98]) |
+							"\u201c" | ([\xe2][\x80][\x9c]) |
+							"\u201e" | ([\xe2][\x80][\x9e]) |
+							"\u201a" | ([\xe2][\x80][\x9a]) |
+							"\u203a" | ([\xe2][\x80][\xba]) ;
 
 		closing_quote		= ["'] |
-                            "\u201d" | ([\xe2][\x80][\x9d]) | 
-                            "\u2033" | ([\xe2][\x80][\xb3]) |
-                            "\u00ab" | ([\xc2][\xab]) |
-                            "\u00bc" | ([\xca][\xbc]) |
-                            "\u02ee" | ([\xcb][\xae]) |
-                            "\u2019" | ([\xe2][\x80][\x99]) |
-                            "\u2039" | ([\xe2][\x80][\xb9]) ;
+							"\u201d" | ([\xe2][\x80][\x9d]) |
+							"\u2033" | ([\xe2][\x80][\xb3]) |
+							"\u00ab" | ([\xc2][\xab]) |
+							"\u00bc" | ([\xca][\xbc]) |
+							"\u02ee" | ([\xcb][\xae]) |
+							"\u2019" | ([\xe2][\x80][\x99]) |
+							"\u2039" | ([\xe2][\x80][\xb9]) ;
 
 
 		start_phrase = [ ] ([“‘(\[] | opening_quote ) [ \t]*;
@@ -241,7 +241,7 @@ char * title_case_string_len(const char * str, size_t len) {
 		//if (type && s.start != last_stop) {
 		if (s.start != last_stop && stop > last_stop) {
 			d_string_append_c_array(out, last_stop, (int)(s.start - last_stop));
-			fprintf(stderr, "skip: '%.*s'\n", (int)(s.start - last_stop), last_stop);
+//			fprintf(stderr, "skip: '%.*s'\n", (int)(s.start - last_stop), last_stop);
 		}
 
 		switch (type) {
@@ -249,34 +249,40 @@ char * title_case_string_len(const char * str, size_t len) {
 				// Finished
 				d_string_append_c_array(out, last_stop, (int)(stop - last_stop));
 				break;
+
 			case WORD_SHORT:
 				if (first) {
 					print_cap;
-					} else {
-						print_lower;
-					}
-					break;
+				} else {
+					print_lower;
+				}
+
+				break;
+
 			case WORD_UPPER:
 				print_upper;
 				break;
+
 			case WORD_LAST:
 			case WORD_PLAIN:
 				print_cap;
 				break;
+
 			case START_SUBSENTENCE:
 			case START_SUBPHRASE:
 				first = true;
+
 			case END_SUBPHRASE:
 			case PUNCT:
 			case WORD_MIXED:
 			case WORD_URL:
 				print_as_is;
-			break;
+				break;
 		}
 
-		if (type) {
-			fprintf(stderr, "%d: '%.*s'\n", type, (int)(s.cur - s.start), s.start);
-		}
+//		if (type) {
+//			fprintf(stderr, "%d: '%.*s'\n", type, (int)(s.cur - s.start), s.start);
+//		}
 
 		if (first && type == PUNCT) {
 
@@ -444,6 +450,8 @@ void Test_title_case(CuTest * tc) {
 	result = title_case_string("Never touch paths like /var/run before/after /boot");
 	CuAssertStrEquals(tc, "Never Touch Paths Like /var/run Before/After /boot", result);
 	free(result);
+
+	// Additional test cases from https://github.com/MatthewMi11er/js-title-case/blob/master/test/test-cases.js
 
 	result = title_case_string("follow step-by-step instructions");
 	CuAssertStrEquals(tc, "Follow Step-by-Step Instructions", result);
