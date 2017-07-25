@@ -4,9 +4,9 @@
 | ---------- | ------------------------- |  
 | Title:     | cTitleCase        |  
 | Author:    | Fletcher T. Penney       |  
-| Date:      | 2017-07-24 |  
+| Date:      | 2017-07-25 |  
 | Copyright: | Copyright © 2017 Fletcher T. Penney.    |  
-| Version:   | 1.0.0      |  
+| Version:   | 1.0.1      |  
 
 
 ## Introduction ##
