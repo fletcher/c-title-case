@@ -53,12 +53,16 @@
 */
 
 
-#ifndef LIBTITLECASE_C_TEMPLATE_H
-#define LIBTITLECASE_C_TEMPLATE_H
+#ifndef LIBTITLECASE_H
+#define LIBTITLECASE_H
 
 
+/// Convert str to a title cased version; resulting char * must be freed
 char * title_case_string(const char * str);
 
+
+/// Convert str to a title cased version; resulting char * must be freed
+/// Use this version if you know the source string's length in advance
 char * title_case_string_len(const char * str, size_t len);
 
 

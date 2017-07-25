@@ -1,6 +1,6 @@
 The `c-template` project is released under the MIT License.
 
-GLibFacade.c and GLibFacade.h are from the MultiMarkdown v4 project:
+d_string.c and d_string.h are from the MultiMarkdown v4 project:
 
 	https://github.com/fletcher/MultiMarkdown-4/
 
