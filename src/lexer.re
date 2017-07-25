@@ -143,6 +143,8 @@ static int scan(Scanner * s, const char * stop) {
 
 		url = [a-zA-Z\-_]+ [@.:] [a-zA-Z\-_@.:/]+ apos?;
 
+		last_hyphen = '-' word space? '\x00';
+
 		[0-9] [0-9a-zA-Z]+		{ return WORD_MIXED; }
 
 		file_path | url			{ return WORD_URL; }
@@ -154,6 +156,10 @@ static int scan(Scanner * s, const char * stop) {
 		shortwords / (punct* '\x00')		{ return WORD_LAST; }
 
 		shortwords / (punct* end_phrase) { return WORD_LAST; }
+
+		shortwords / subsentence 	{ return WORD_LAST; }
+
+		shortwords / last_hyphen 	{ return WORD_LAST; }
 
 		shortwords / nonword	{ return WORD_SHORT; }
 
@@ -266,9 +272,9 @@ char * title_case_string_len(const char * str, size_t len) {
 			break;
 		}
 
-//		if (type) {
-//			fprintf(stderr, "%d: '%.*s'\n", type, (int)(s.cur - s.start), s.start);
-//		}
+		if (type) {
+			fprintf(stderr, "%d: '%.*s'\n", type, (int)(s.cur - s.start), s.start);
+		}
 
 		if (first && type == PUNCT) {
 
@@ -436,6 +442,164 @@ void Test_title_case(CuTest * tc) {
 	result = title_case_string("Never touch paths like /var/run before/after /boot");
 	CuAssertStrEquals(tc, "Never Touch Paths Like /var/run Before/After /boot", result);
 	free(result);
+
+	result = title_case_string("follow step-by-step instructions");
+	CuAssertStrEquals(tc, "Follow Step-by-Step Instructions", result);
+	free(result);
+
+	result = title_case_string("this sub-phrase is nice");
+	CuAssertStrEquals(tc, "This Sub-Phrase Is Nice", result);
+	free(result);
+
+	result = title_case_string("catchy title: a subtitle");
+	CuAssertStrEquals(tc, "Catchy Title: A Subtitle", result);
+	free(result);
+
+	result = title_case_string("catchy title: \"a quoted subtitle\"");
+	CuAssertStrEquals(tc, "Catchy Title: \"A Quoted Subtitle\"", result);
+	free(result);
+
+	result = title_case_string("catchy title: “‘a twice quoted subtitle’”");
+	CuAssertStrEquals(tc, "Catchy Title: “‘A Twice Quoted Subtitle’”", result);
+	free(result);
+
+	result = title_case_string("\"a title inside double quotes\"");
+	CuAssertStrEquals(tc, "\"A Title Inside Double Quotes\"", result);
+	free(result);
+
+	result = title_case_string("all words capitalized");
+	CuAssertStrEquals(tc, "All Words Capitalized", result);
+	free(result);
+
+	result = title_case_string("small words are for by and of lowercase");
+	CuAssertStrEquals(tc, "Small Words Are for by and of Lowercase", result);
+	free(result);
+
+	result = title_case_string("a small word starts");
+	CuAssertStrEquals(tc, "A Small Word Starts", result);
+	free(result);
+
+	result = title_case_string("a small word it ends on");
+	CuAssertStrEquals(tc, "A Small Word It Ends On", result);
+	free(result);
+
+	result = title_case_string("do questions work?");
+	CuAssertStrEquals(tc, "Do Questions Work?", result);
+	free(result);
+
+	result = title_case_string("multiple sentences. more than one.");
+	CuAssertStrEquals(tc, "Multiple Sentences. More Than One.", result);
+	free(result);
+
+	result = title_case_string("Ends with small word of");
+	CuAssertStrEquals(tc, "Ends With Small Word Of", result);
+	free(result);
+
+	result = title_case_string("double quoted \"inner\" word");
+	CuAssertStrEquals(tc, "Double Quoted \"Inner\" Word", result);
+	free(result);
+
+	result = title_case_string("single quoted 'inner' word");
+	CuAssertStrEquals(tc, "Single Quoted 'Inner' Word", result);
+	free(result);
+
+	result = title_case_string("fancy double quoted “inner” word");
+	CuAssertStrEquals(tc, "Fancy Double Quoted “Inner” Word", result);
+	free(result);
+
+	result = title_case_string("fancy single quoted ‘inner’ word");
+	CuAssertStrEquals(tc, "Fancy Single Quoted ‘Inner’ Word", result);
+	free(result);
+
+	result = title_case_string("this vs. that");
+	CuAssertStrEquals(tc, "This vs. That", result);
+	free(result);
+
+	result = title_case_string("this vs that");
+	CuAssertStrEquals(tc, "This vs That", result);
+	free(result);
+
+	result = title_case_string("this v. that");
+	CuAssertStrEquals(tc, "This v. That", result);
+	free(result);
+
+	result = title_case_string("this v that");
+	CuAssertStrEquals(tc, "This v That", result);
+	free(result);
+
+	result = title_case_string("address email@example.com titles");
+	CuAssertStrEquals(tc, "Address email@example.com Titles", result);
+	free(result);
+
+	result = title_case_string("pass camelCase through");
+	CuAssertStrEquals(tc, "Pass camelCase Through", result);
+	free(result);
+
+	result = title_case_string("don't break");
+	CuAssertStrEquals(tc, "Don't Break", result);
+	free(result);
+
+	result = title_case_string("catchy title: substance subtitle");
+	CuAssertStrEquals(tc, "Catchy Title: Substance Subtitle", result);
+	free(result);
+
+	result = title_case_string("we keep NASA capitalized");
+	CuAssertStrEquals(tc, "We Keep NASA Capitalized", result);
+	free(result);
+
+	result = title_case_string("leave Q&A unscathed");
+	CuAssertStrEquals(tc, "Leave Q&A Unscathed", result);
+	free(result);
+
+	result = title_case_string("Scott Moritz and TheStreet.com’s million iPhone la-la land");
+	CuAssertStrEquals(tc, "Scott Moritz and TheStreet.com’s Million iPhone La-La Land", result);
+	free(result);
+
+	result = title_case_string("you have a http://example.com/foo/ title");
+	CuAssertStrEquals(tc, "You Have a http://example.com/foo/ Title", result);
+	free(result);
+
+	result = title_case_string("your hair[cut] looks (nice)");
+	CuAssertStrEquals(tc, "Your Hair[cut] Looks (Nice)", result);
+	free(result);
+
+	result = title_case_string("keep that colo(u)r");
+	CuAssertStrEquals(tc, "Keep That Colo(u)r", result);
+	free(result);
+
+	result = title_case_string("have you read “The Lottery”?");
+	CuAssertStrEquals(tc, "Have You Read “The Lottery”?", result);
+	free(result);
+
+	result = title_case_string("Read markdown_rules.txt to find out how _underscores around words_ will be interpreted");
+	CuAssertStrEquals(tc, "Read markdown_rules.txt to Find Out How _Underscores Around Words_ Will Be Interpreted", result);
+	free(result);
+
+	result = title_case_string("Read markdown_rules.txt to find out how *asterisks around words* will be interpreted");
+	CuAssertStrEquals(tc, "Read markdown_rules.txt to Find Out How *Asterisks Around Words* Will Be Interpreted", result);
+	free(result);
+
+	result = title_case_string("Notes and observations regarding Apple’s announcements from ‘The Beat Goes On’ special event");
+	CuAssertStrEquals(tc, "Notes and Observations Regarding Apple’s Announcements From ‘The Beat Goes On’ Special Event", result);
+	free(result);
+
+	result = title_case_string("take them on: special lower cases");
+	CuAssertStrEquals(tc, "Take Them On: Special Lower Cases", result);
+	free(result);
+
+	result = title_case_string("capitalize hyphenated words on-demand");
+	CuAssertStrEquals(tc, "Capitalize Hyphenated Words On-Demand", result);
+	free(result);
+
+	// I don't support titlecase raw HTML or complex unicode characters
+
+//	result = title_case_string("Drink this piña colada while you listen to ænima");
+//	CuAssertStrEquals(tc, "Drink This Piña Colada While You Listen to Ænima", result);
+//	free(result);
+
+//	result = title_case_string("<h1>some <b>HTML</b> &amp; entities</h1>");
+//	CuAssertStrEquals(tc, "<h1>Some <b>HTML</b> &amp; Entities</h1>", result);
+//	free(result);
 
 }
 
