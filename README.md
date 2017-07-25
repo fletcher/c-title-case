@@ -2,11 +2,11 @@
 
 |            |                           |  
 | ---------- | ------------------------- |  
-| Title:     | C-Template        |  
+| Title:     | cTitleCase        |  
 | Author:    | Fletcher T. Penney       |  
-| Date:      | 2017-01-16 |  
-| Copyright: | Copyright © 2015-2017 Fletcher T. Penney.    |  
-| Version:   | 1.0.5      |  
+| Date:      | 2017-07-24 |  
+| Copyright: | Copyright © 2017 Fletcher T. Penney.    |  
+| Version:   | 1.0.0      |  
 
 
 ## Introduction ##

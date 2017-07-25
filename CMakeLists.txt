@@ -5,17 +5,17 @@ cmake_minimum_required (VERSION 2.6)
 # Define Our Project
 # ==================
 
-set (My_Project_Title "C-Template")
-set (My_Project_Description "Boilerplate c project with cmake support, CuTest unit testing, and more.")
+set (My_Project_Title "cTitleCase")
+set (My_Project_Description "Apply title case rules.")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2017-01-16")
+set (My_Project_Revised_Date "2017-07-24")
 set (My_Project_Version_Major 1)
 set (My_Project_Version_Minor 0)
-set (My_Project_Version_Patch 5)
+set (My_Project_Version_Patch 0)
 
 set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 
-set (My_Project_Copyright_Date "2015-2017")
+set (My_Project_Copyright_Date "2017")
 set (My_Project_Copyright "Copyright © ${My_Project_Copyright_Date} ${My_Project_Author}.")
 
 string(TOUPPER ${My_Project_Title} My_Project_Title_Caps  )
@@ -54,7 +54,7 @@ MACRO(ADD_PUBLIC_HEADER target filename)
 	# the workflow as appropriate, since there is only one 
 	# public_header_files list.
 
-	SET_TARGET_PROPERTIES(${target} PROPERTIES PUBLIC_HEADER ${filename})
+	# SET_TARGET_PROPERTIES(${target} PROPERTIES PUBLIC_HEADER ${filename})
 
 	LIST(APPEND public_header_files ${filename})
 
@@ -62,7 +62,7 @@ MACRO(ADD_PUBLIC_HEADER target filename)
 		${filename}
 		PROPERTIES
 		MACOSX_PACKAGE_LOCATION
-		PUBLIC_HEADER
+		include/\${PRODUCT_NAME}
 	)
 
 	# Set Xcode project to configure public header location to allow
@@ -160,11 +160,17 @@ configure_file (
 
 # src_files are the primary files, and will be included in doxygen documentation
 set(src_files
-#	src/foo.c
+	src/char.c
+	src/lexer.c
+	src/d_string.c
 )
 
 # Primary header files, also for doxygen documentation
 set(header_files
+	src/char.h
+	src/lexer.h
+	src/libTitleCase.h
+	src/d_string.h
 )
 
 # Public headers, will be installed in 'include'
@@ -302,32 +308,40 @@ endif (WIN32)
 # ==============
 
 # Create a library?
-# add_library(libFOO STATIC
-#	${src_files}
-#	${src_utility_files}
-#	${header_files}
-#	${header_utility_files}
-# )
+add_library(libTitleCase STATIC
+	${src_files}
+	${src_utility_files}
+	${header_files}
+	${header_utility_files}
+)
+
+ADD_PUBLIC_HEADER(libTitleCase src/libTitleCase.h)
 
 # remove the extra "lib" from "liblibFOO"
-# SET_TARGET_PROPERTIES(libFOO PROPERTIES PREFIX "")
+SET_TARGET_PROPERTIES(libTitleCase PROPERTIES
+	PREFIX ""
+	FRAMEWORK TRUE
+	FRAMEWORK_VERSION A
+	MACOSX_FRAMEWORK_IDENTIFIER net.fletcherpenney.titlecase
+)
 
 # Create a command-line app?
-# if (NOT DEFINED TEST)
-# 	add_executable(main
-# 		src/main.c
-# 		src/d_string.c
-# 		src/d_string.h
-# 		${header_files}
-# 	)
-# 
+if (NOT DEFINED TEST)
+	add_executable(titlecase
+		src/main.c
+		src/d_string.c
+		src/d_string.h
+		${header_files}
+	)
+
 #	Link the library to the app?
-#	target_link_libraries(main libFOO)
-# endif()
+	target_link_libraries(titlecase libTitleCase)
+
+	set_target_properties(titlecase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+endif()
 
 # Xcode settings for fat binaries
-# set_target_properties(libFOO PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
-# set_target_properties(main PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
+set_target_properties(libTitleCase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
 
 
 # ==========================
