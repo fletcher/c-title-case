@@ -40,6 +40,12 @@ include_directories( ${PROJECT_SOURCE_DIR}/src )
 include_directories( ${PROJECT_SOURCE_DIR}/test )
 include_directories(${PROJECT_BINARY_DIR})
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	# using Clang
+else()
+	add_definitions("-std=c99")
+endif()
+
 
 # =================
 # Macro Definitions
