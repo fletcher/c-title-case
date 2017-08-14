@@ -8,10 +8,10 @@ cmake_minimum_required (VERSION 2.6)
 set (My_Project_Title "cTitleCase")
 set (My_Project_Description "Apply title case rules.")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2017-07-25")
+set (My_Project_Revised_Date "2017-08-14")
 set (My_Project_Version_Major 1)
 set (My_Project_Version_Minor 0)
-set (My_Project_Version_Patch 1)
+set (My_Project_Version_Patch 2)
 
 set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 
@@ -39,6 +39,12 @@ project (${My_Project_Title})
 include_directories( ${PROJECT_SOURCE_DIR}/src )
 include_directories( ${PROJECT_SOURCE_DIR}/test )
 include_directories(${PROJECT_BINARY_DIR})
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	# using Clang
+else()
+	add_definitions("-std=c99")
+endif()
 
 
 # =================
