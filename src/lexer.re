@@ -238,10 +238,10 @@ char * title_case_string_len(const char * str, size_t len) {
 		// Scan for next word
 		type = scan(&s, stop);
 
-		//if (type && s.start != last_stop) {
-		if (s.start != last_stop && stop > last_stop) {
+		if (type &&
+			(s.start != last_stop) &&
+			(stop > last_stop)) {
 			d_string_append_c_array(out, last_stop, (int)(s.start - last_stop));
-//			fprintf(stderr, "skip: '%.*s'\n", (int)(s.start - last_stop), last_stop);
 		}
 
 		switch (type) {
@@ -600,6 +600,11 @@ void Test_title_case(CuTest * tc) {
 	result = title_case_string("capitalize hyphenated words on-demand");
 	CuAssertStrEquals(tc, "Capitalize Hyphenated Words On-Demand", result);
 	free(result);
+
+	result = title_case_string("## 3.9 Foo - Bar 4");
+	CuAssertStrEquals(tc, "## 3.9 Foo - Bar 4", result);
+	free(result);
+
 
 	// I don't support titlecase raw HTML or complex unicode characters
 
