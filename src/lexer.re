@@ -605,6 +605,10 @@ void Test_title_case(CuTest * tc) {
 	CuAssertStrEquals(tc, "## 3.9 Foo - Bar 4", result);
 	free(result);
 
+	result = title_case_string("### 4. foo");
+	CuAssertStrEquals(tc, "### 4. Foo", result);
+	free(result);
+
 
 	// I don't support titlecase raw HTML or complex unicode characters
 
