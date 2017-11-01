@@ -9,16 +9,16 @@
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation either version 2 of the License, or
 	(at your option) any later version.
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
-	
+
 	You should have received a copy of the GNU General Public License
 	along with this program if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-	
+
 */
 
 #include <stdio.h>
@@ -38,9 +38,9 @@ DString * stdin_buffer() {
 
 	DString * buffer = d_string_new("");
 
-    while ((bytes = fread(chunk, 1, kBUFFERSIZE, stdin)) > 0) {
-    	d_string_append_c_array(buffer, chunk, bytes);
-    }
+	while ((bytes = fread(chunk, 1, kBUFFERSIZE, stdin)) > 0) {
+		d_string_append_c_array(buffer, chunk, bytes);
+	}
 
 	fclose(stdin);
 
@@ -62,9 +62,9 @@ DString * scan_file(char * fname) {
 
 	DString * buffer = d_string_new("");
 
-    while ((bytes = fread(chunk, 1, kBUFFERSIZE, file)) > 0) {
-    	d_string_append_c_array(buffer, chunk, bytes);
-    }
+	while ((bytes = fread(chunk, 1, kBUFFERSIZE, file)) > 0) {
+		d_string_append_c_array(buffer, chunk, bytes);
+	}
 
 	fclose(file);
 
@@ -80,7 +80,7 @@ int main( int argc, char** argv ) {
 		fprintf(stdout, "%s\n", result);
 
 		d_string_free(text, true);
-		free(result);		
+		free(result);
 	} else  if (argc == 2) {
 		char * text = argv[1];
 
