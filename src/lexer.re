@@ -72,10 +72,10 @@
 #define YYCTXMARKER		s->ctx
 
 
-#define print_cap		d_string_append_c(out, toupper(*(s.start))); for (size_t i = (size_t)(s.start + 1 - str); i < (s.cur - str); i++) { d_string_append_c(out, tolower(str[i])); }
+#define print_cap		d_string_append_c(out, toupper(*(s.start))); for (size_t i = (size_t)(s.start + 1 - in->str); i < (s.cur - in->str); i++) { d_string_append_c(out, tolower(str[i])); }
 #define print_lower		d_string_append_c(out, tolower(*(s.start))); d_string_append_c_array(out, s.start + 1, (int)(s.cur - s.start - 1));
 #define print_as_is		d_string_append_c_array(out, s.start, (int)(s.cur - s.start));
-#define print_upper		upper = true; for (size_t i = (size_t)(s.start - str); i < (s.cur - str); i++) { if (str[i] == '\'') {upper = false; } if (upper) {d_string_append_c(out, toupper(str[i]));} else {d_string_append_c(out, str[i]); } }
+#define print_upper		upper = true; for (size_t i = (size_t)(s.start - in->str); i < (s.cur - in->str); i++) { if (str[i] == '\'') {upper = false; } if (upper) {d_string_append_c(out, toupper(str[i]));} else {d_string_append_c(out, str[i]); } }
 
 
 static int scan(Scanner * s, const char * stop) {
