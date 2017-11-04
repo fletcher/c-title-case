@@ -187,14 +187,31 @@ scan:
 
 
 char * title_case_string(const char * str) {
-	// Stop at end of line
+	DString * result = d_string_new("");
+
+	// Stop at first line ending, if present
 	char * stop = (char *) str;
 
 	while (!char_is_line_ending(*stop)) {
 		stop++;
 	}
 
-	return title_case_string_len(str, stop - str);
+	char * title = title_case_string_len(str, stop - str);
+
+	d_string_append(result, title);
+
+	// Add anything we did not parse back to end
+	while (*stop != '\0') {
+		d_string_append_c(result, *stop);
+		stop++;
+	}
+
+	// Clean up
+	free(title);
+	title = result->str;
+	d_string_free(result, false);
+
+	return title;
 }
 
 
@@ -257,19 +274,23 @@ char * title_case_string_len(const char * str, size_t len) {
 
 			case WORD_SHORT:
 				if (first) {
+					// Capitalize short words at beginning of title
 					print_cap;
 				} else {
+					// Otherwise lower case them
 					print_lower;
 				}
 
 				break;
 
 			case WORD_UPPER:
+				// Already upper case
 				print_upper;
 				break;
 
 			case WORD_LAST:
 			case WORD_PLAIN:
+				// Capitalize any word at end of title
 				print_cap;
 				break;
 
@@ -284,10 +305,6 @@ char * title_case_string_len(const char * str, size_t len) {
 				print_as_is;
 				break;
 		}
-
-//		if (type) {
-//			fprintf(stderr, "%d: '%.*s'\n", type, (int)(s.cur - s.start), s.start);
-//		}
 
 		if (first && type == PUNCT) {
 
@@ -618,8 +635,8 @@ void Test_title_case(CuTest * tc) {
 	CuAssertStrEquals(tc, "# Tests This Is #", result);
 	free(result);
 
-	result = title_case_string("# tests this is #\n\n\n\n");
-	CuAssertStrEquals(tc, "# Tests This Is #", result);
+	result = title_case_string("# tests this is #  \n\n\n\n");
+	CuAssertStrEquals(tc, "# Tests This Is #\n\n\n\n", result);
 	free(result);
 
 	// I don't support changing case of raw HTML or complex unicode characters
