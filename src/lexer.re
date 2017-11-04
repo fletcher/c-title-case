@@ -187,9 +187,14 @@ scan:
 
 
 char * title_case_string(const char * str) {
-	size_t len = strlen(str);
+	// Stop at end of line
+	char * stop = (char *) str;
 
-	return title_case_string_len(str, len);
+	while (!char_is_line_ending(*stop)) {
+		stop++;
+	}
+
+	return title_case_string_len(str, stop - str);
 }
 
 
@@ -609,8 +614,15 @@ void Test_title_case(CuTest * tc) {
 	CuAssertStrEquals(tc, "### 4. Foo", result);
 	free(result);
 
+	result = title_case_string("# tests this is # ");
+	CuAssertStrEquals(tc, "# Tests This Is #", result);
+	free(result);
 
-	// I don't support titlecase raw HTML or complex unicode characters
+	result = title_case_string("# tests this is #\n\n\n\n");
+	CuAssertStrEquals(tc, "# Tests This Is #", result);
+	free(result);
+
+	// I don't support changing case of raw HTML or complex unicode characters
 
 //	result = title_case_string("Drink this piña colada while you listen to ænima");
 //	CuAssertStrEquals(tc, "Drink This Piña Colada While You Listen to Ænima", result);
