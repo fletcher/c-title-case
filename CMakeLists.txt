@@ -346,6 +346,9 @@ if (NOT DEFINED TEST)
 	set_target_properties(titlecase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
 endif()
 
+# Xcode iOS
+set_target_properties(libTitleCase PROPERTIES XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0")
+
 # Xcode settings for fat binaries
 set_target_properties(libTitleCase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
 
