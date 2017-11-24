@@ -8,10 +8,10 @@ cmake_minimum_required (VERSION 2.6)
 set (My_Project_Title "cTitleCase")
 set (My_Project_Description "Apply title case rules.")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2017-11-04")
+set (My_Project_Revised_Date "2017-11-24")
 set (My_Project_Version_Major 1)
 set (My_Project_Version_Minor 0)
-set (My_Project_Version_Patch 8)
+set (My_Project_Version_Patch 9)
 
 set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 
@@ -260,6 +260,7 @@ if (APPLE)
 
 	# Configure backwards-compatible support (if your project allows it)
 	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.4" CACHE STRING "Deployment target for OSX" FORCE)
+	SET(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Deployment target for iOS" FORCE)
 
 	# Compile for x86_64 and i386.  ppc no longer supported
 	if(CMAKE_BUILD_TYPE MATCHES "Release")
