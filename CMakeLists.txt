@@ -8,10 +8,10 @@ cmake_minimum_required (VERSION 2.6)
 set (My_Project_Title "cTitleCase")
 set (My_Project_Description "Apply title case rules.")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2018-03-11")
+set (My_Project_Revised_Date "2018-10-14")
 set (My_Project_Version_Major 1)
 set (My_Project_Version_Minor 0)
-set (My_Project_Version_Patch 11)
+set (My_Project_Version_Patch 12)
 
 set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 
