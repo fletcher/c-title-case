@@ -266,6 +266,10 @@ char * title_case_string_len(const char * str, size_t len) {
 			d_string_append_c_array(out, last_stop, (int)(s.start - last_stop));
 		}
 
+		if (s.cur > stop) {
+			s.cur = stop;
+		}
+
 		switch (type) {
 			case 0:
 				// Finished
@@ -637,6 +641,10 @@ void Test_title_case(CuTest * tc) {
 
 	result = title_case_string("# tests this is #  \n\n\n\n");
 	CuAssertStrEquals(tc, "# Tests This Is #\n\n\n\n", result);
+	free(result);
+
+	result = title_case_string_len("this is a titlefoo", 15);
+	CuAssertStrEquals(tc, "This Is a Title", result);
 	free(result);
 
 	// I don't support changing case of raw HTML or complex unicode characters
