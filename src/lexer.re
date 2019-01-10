@@ -180,7 +180,10 @@ scan:
 
 		punct					{ return PUNCT; }
 
-		// Skip over anything else
+		// Skip over anything else - '.' does not include newlines
+
+		[\n\r]					{ goto scan; }
+		'\x00'					{ return 0; }
 		. 						{ goto scan; }
 	*/
 }
