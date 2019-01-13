@@ -93,7 +93,7 @@ MACRO(ADD_PUBLIC_HEADER target filename)
 	
 	SET_TARGET_PROPERTIES(${target} PROPERTIES
 		XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS
-		"macos iphonesimulator iphoneos"
+		"macos iphonesimulator iphoneos macosx"
 	)
 
 	SET_TARGET_PROPERTIES(${target} PROPERTIES
