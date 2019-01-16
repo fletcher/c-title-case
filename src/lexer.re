@@ -180,13 +180,23 @@ scan:
 
 		punct					{ return PUNCT; }
 
-		// Skip over anything else
+		// Skip over anything else - '.' does not include newlines
+
+		[\n\r]					{ goto scan; }
+		'\x00'					{ return 0; }
 		. 						{ goto scan; }
 	*/
 }
 
 
-char * title_case_string(const char * str) {
+#define kTitleCase 1
+#define kSentenceCase 2
+
+
+char * core_case_string_len(const char * str, size_t len, short case_type);
+
+
+char * core_case_string(const char * str, short case_type) {
 	DString * result = d_string_new("");
 
 	// Stop at first line ending, if present
@@ -196,7 +206,7 @@ char * title_case_string(const char * str) {
 		stop++;
 	}
 
-	char * title = title_case_string_len(str, stop - str);
+	char * title = core_case_string_len(str, stop - str, case_type);
 
 	d_string_append(result, title);
 
@@ -215,7 +225,17 @@ char * title_case_string(const char * str) {
 }
 
 
-char * title_case_string_len(const char * str, size_t len) {
+char * title_case_string(const char * str) {
+	return core_case_string(str, kTitleCase);
+}
+
+
+char * sentence_case_string(const char * str) {
+	return core_case_string(str, kSentenceCase);
+}
+
+
+char * core_case_string_len(const char * str, size_t len, short case_type) {
 	DString * out = d_string_new("");
 
 	DString * in = d_string_new(str);
@@ -261,9 +281,13 @@ char * title_case_string_len(const char * str, size_t len) {
 		type = scan(&s, stop);
 
 		if (type &&
-			(s.start != last_stop) &&
-			(stop > last_stop)) {
+				(s.start != last_stop) &&
+				(stop > last_stop)) {
 			d_string_append_c_array(out, last_stop, (int)(s.start - last_stop));
+		}
+
+		if (s.cur > stop) {
+			s.cur = stop;
 		}
 
 		switch (type) {
@@ -291,12 +315,24 @@ char * title_case_string_len(const char * str, size_t len) {
 			case WORD_LAST:
 			case WORD_PLAIN:
 				// Capitalize any word at end of title
-				print_cap;
+				if (case_type == kTitleCase) {
+					print_cap;
+				} else {
+					if (first) {
+						print_cap;
+					} else {
+						print_lower;
+					}
+				}
 				break;
 
 			case START_SUBSENTENCE:
-			case START_SUBPHRASE:
 				first = true;
+
+			case START_SUBPHRASE:
+				if (case_type == kTitleCase) {
+					first = true;
+				}
 
 			case END_SUBPHRASE:
 			case PUNCT:
@@ -330,6 +366,15 @@ char * title_case_string_len(const char * str, size_t len) {
 	d_string_free(in, true);
 
 	return result;
+}
+
+
+char * title_case_string_len(const char * str, size_t len) {
+	return core_case_string_len(str, len, kTitleCase);
+}
+
+char * sentence_case_string_len(const char * str, size_t len) {
+	return core_case_string_len(str, len, kSentenceCase);
 }
 
 
@@ -639,6 +684,10 @@ void Test_title_case(CuTest * tc) {
 	CuAssertStrEquals(tc, "# Tests This Is #\n\n\n\n", result);
 	free(result);
 
+	result = title_case_string_len("this is a titlefoo", 15);
+	CuAssertStrEquals(tc, "This Is a Title", result);
+	free(result);
+
 	// I don't support changing case of raw HTML or complex unicode characters
 
 //	result = title_case_string("Drink this piña colada while you listen to ænima");
@@ -653,3 +702,25 @@ void Test_title_case(CuTest * tc) {
 
 #endif
 
+
+#ifdef TEST
+void Test_sentence_case(CuTest * tc) {
+	char * result;
+
+	result = sentence_case_string("this v that.");
+	CuAssertStrEquals(tc, "This v that.", result);
+	free(result);
+
+	result = sentence_case_string("this is first. this is second.");
+	CuAssertStrEquals(tc, "This is first. This is second.", result);
+	free(result);
+
+	result = sentence_case_string("fancy single quoted ‘inner’ word");
+	CuAssertStrEquals(tc, "Fancy single quoted ‘inner’ word", result);
+	free(result);
+
+	result = sentence_case_string("this is a sentence (with a parenthetical phrase)");
+	CuAssertStrEquals(tc, "This is a sentence (with a parenthetical phrase)", result);
+	free(result);
+}
+#endif
