@@ -47,18 +47,32 @@ DString * stdin_buffer() {
 	return buffer;
 }
 
-DString * scan_file(char * fname) {
-	/* Read from stdin and return a GString *
-		`buffer` will need to be freed elsewhere */
+/// Read file into memory
+DString * scan_file(const char * fname) {
+	/* Read from stdin and return a DString *
+	 `buffer` will need to be freed elsewhere */
 
 	char chunk[kBUFFERSIZE];
 	size_t bytes;
 
 	FILE * file;
 
+	#if defined(__WIN32)
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, fname, -1, NULL, 0);
+	wchar_t wstr[wchars_num];
+	MultiByteToWideChar(CP_UTF8, 0, fname, -1, wstr, wchars_num);
+
+	if ((file = _wfopen(wstr, L"rb")) == NULL) {
+		return NULL;
+	}
+
+	#else
+
 	if ((file = fopen(fname, "r")) == NULL ) {
 		return NULL;
 	}
+
+	#endif
 
 	DString * buffer = d_string_new("");
 
@@ -66,10 +80,25 @@ DString * scan_file(char * fname) {
 		d_string_append_c_array(buffer, chunk, bytes);
 	}
 
+	// Strip UTF-8 BOM
+	if (strncmp(buffer->str, "\xef\xbb\xbf", 3) == 0) {
+		d_string_erase(buffer, 0, 3);
+	}
+
+	// Strip UTF-16 BOMs
+	if (strncmp(buffer->str, "\xef\xff", 2) == 0) {
+		d_string_erase(buffer, 0, 2);
+	}
+
+	if (strncmp(buffer->str, "\xff\xfe", 2) == 0) {
+		d_string_erase(buffer, 0, 2);
+	}
+
 	fclose(file);
 
 	return buffer;
 }
+
 
 int main( int argc, char** argv ) {
 	if (argc == 1) {
