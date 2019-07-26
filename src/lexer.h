@@ -70,7 +70,8 @@ enum word_types {
 	START_SUBPHRASE,
 	END_SUBPHRASE,
 	PUNCT,
-	WORD_URL
+	WORD_URL,
+	WORD_UTF8
 };
 
 

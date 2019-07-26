@@ -46,6 +46,8 @@ else()
 	add_definitions("-std=c99")
 endif()
 
+include_directories(submodules/utf8proc)
+
 
 # =================
 # Macro Definitions
@@ -98,7 +100,7 @@ MACRO(ADD_PUBLIC_HEADER target filename)
 
 	SET_TARGET_PROPERTIES(${target} PROPERTIES
 		XCODE_ATTRIBUTE_VALID_ARCHITECTURES
-		"x86_64 i386 armv6 armv7 armv7s arm64"
+		"x86_64 armv6 armv7 armv7s arm64"
 	)
 
 ENDMACRO(ADD_PUBLIC_HEADER)
@@ -187,11 +189,13 @@ set(public_header_files
 # Utility source files will not be included in doxygen
 set(src_utility_files
 #	src/d_string.c
+	submodules/utf8proc/utf8proc.c
 )
 
 set(header_utility_files
 #	src/d_string.h
 	${PROJECT_BINARY_DIR}/version.h
+	submodules/utf8proc/utf8proc.h
 )
 
 # Generate doxygen configuration file
@@ -259,12 +263,12 @@ endif()
 if (APPLE)
 
 	# Configure backwards-compatible support (if your project allows it)
-	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.4" CACHE STRING "Deployment target for OSX" FORCE)
+	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.6" CACHE STRING "Deployment target for OSX" FORCE)
 	SET(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Deployment target for iOS" FORCE)
 
-	# Compile for x86_64 and i386.  ppc no longer supported
+	# Compile for x86_64. i386 and ppc no longer supported
 	if(CMAKE_BUILD_TYPE MATCHES "Release")
-		SET (CMAKE_OSX_ARCHITECTURES x86_64;i386)
+		SET (CMAKE_OSX_ARCHITECTURES x86_64)
 	endif(CMAKE_BUILD_TYPE MATCHES "Release")
 
 	# Use PackageMaker for installers?
