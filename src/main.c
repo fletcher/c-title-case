@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "d_string.h"
 #include "libTitleCase.h"
@@ -47,18 +48,32 @@ DString * stdin_buffer() {
 	return buffer;
 }
 
-DString * scan_file(char * fname) {
-	/* Read from stdin and return a GString *
-		`buffer` will need to be freed elsewhere */
+/// Read file into memory
+DString * scan_file(const char * fname) {
+	/* Read from stdin and return a DString *
+	 `buffer` will need to be freed elsewhere */
 
 	char chunk[kBUFFERSIZE];
 	size_t bytes;
 
 	FILE * file;
 
+#if defined(__WIN32)
+	int wchars_num = MultiByteToWideChar(CP_UTF8, 0, fname, -1, NULL, 0);
+	wchar_t wstr[wchars_num];
+	MultiByteToWideChar(CP_UTF8, 0, fname, -1, wstr, wchars_num);
+
+	if ((file = _wfopen(wstr, L"rb")) == NULL) {
+		return NULL;
+	}
+
+#else
+
 	if ((file = fopen(fname, "r")) == NULL ) {
 		return NULL;
 	}
+
+#endif
 
 	DString * buffer = d_string_new("");
 
@@ -66,28 +81,48 @@ DString * scan_file(char * fname) {
 		d_string_append_c_array(buffer, chunk, bytes);
 	}
 
+	// Strip UTF-8 BOM
+	if (strncmp(buffer->str, "\xef\xbb\xbf", 3) == 0) {
+		d_string_erase(buffer, 0, 3);
+	}
+
+	// Strip UTF-16 BOMs
+	if (strncmp(buffer->str, "\xef\xff", 2) == 0) {
+		d_string_erase(buffer, 0, 2);
+	}
+
+	if (strncmp(buffer->str, "\xff\xfe", 2) == 0) {
+		d_string_erase(buffer, 0, 2);
+	}
+
 	fclose(file);
 
 	return buffer;
 }
 
+<<< <<< < HEAD
 int main( int argc, char ** argv ) {
-	if (argc == 1) {
-		DString * text = stdin_buffer();
+	== == == =
 
-		char * result = title_case_string_len(text->str, text->currentStringLength);
+	int main( int argc, char ** argv ) {
+		>>> >>> > 3890a4de95421896ac7874f043728511443d221f
 
-		fprintf(stdout, "%s\n", result);
+		if (argc == 1) {
+			DString * text = stdin_buffer();
 
-		d_string_free(text, true);
-		free(result);
-	} else  if (argc == 2) {
-		char * text = argv[1];
+			char * result = title_case_string_len(text->str, text->currentStringLength);
 
-		char * result = title_case_string(text);
+			fprintf(stdout, "%s\n", result);
 
-		fprintf(stdout, "%s\n", result);
+			d_string_free(text, true);
+			free(result);
+		} else  if (argc == 2) {
+			char * text = argv[1];
 
-		free(result);
+			char * result = title_case_string(text);
+
+			fprintf(stdout, "%s\n", result);
+
+			free(result);
+		}
 	}
-}

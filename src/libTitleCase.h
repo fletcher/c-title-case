@@ -66,4 +66,12 @@ char * title_case_string(const char * str);
 char * title_case_string_len(const char * str, size_t len);
 
 
+/// Convert str to a sentence cased version; resulting char * must be freed
+char * sentence_case_string(const char * str);
+
+
+/// Convert str to a sentence cased version; resulting char * must be freed
+/// Use this version if you know the source string's length in advance
+char * sentence_case_string_len(const char * str, size_t len);
+
 #endif
