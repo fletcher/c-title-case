@@ -71,7 +71,7 @@ DString * scan_file(char * fname) {
 	return buffer;
 }
 
-int main( int argc, char** argv ) {
+int main( int argc, char ** argv ) {
 	if (argc == 1) {
 		DString * text = stdin_buffer();
 

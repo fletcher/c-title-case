@@ -67,7 +67,7 @@
 
 #define USE_EXTENDED_ASCII_disabled 1
 
-int main( int argc, char** argv ) {
+int main( int argc, char ** argv ) {
 	unsigned char table[256] = {0};
 
 	// Define punctuation
@@ -139,7 +139,7 @@ int main( int argc, char** argv ) {
 
 
 	// Extended ASCII
-	#ifdef USE_EXTENDED_ASCII
+#ifdef USE_EXTENDED_ASCII
 
 	// Punctuation ranges
 	for (int i = 132; i < 138; ++i) {
@@ -198,7 +198,7 @@ int main( int argc, char** argv ) {
 		}
 	}
 
-	#endif
+#endif
 
 
 	// Print output as 16 x 16 table
