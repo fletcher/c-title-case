@@ -334,6 +334,7 @@ SET_TARGET_PROPERTIES(libTitleCase PROPERTIES
 	FRAMEWORK TRUE
 	FRAMEWORK_VERSION A
 	MACOSX_FRAMEWORK_IDENTIFIER net.fletcherpenney.titlecase
+	XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "net.fletcherpenney.titlecase"
 )
 
 # Create a command-line app?
