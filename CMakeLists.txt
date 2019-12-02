@@ -46,7 +46,7 @@ else()
 	add_definitions("-std=c99")
 endif()
 
-include_directories(submodules/utf8proc)
+include_directories(${PROJECT_SOURCE_DIR}/submodules/utf8proc)
 
 
 # =================
