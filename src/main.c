@@ -100,29 +100,24 @@ DString * scan_file(const char * fname) {
 	return buffer;
 }
 
-<<< <<< < HEAD
 int main( int argc, char ** argv ) {
-	== == == =
 
-	int main( int argc, char ** argv ) {
-		>>> >>> > 3890a4de95421896ac7874f043728511443d221f
+	if (argc == 1) {
+		DString * text = stdin_buffer();
 
-		if (argc == 1) {
-			DString * text = stdin_buffer();
+		char * result = title_case_string_len(text->str, text->currentStringLength);
 
-			char * result = title_case_string_len(text->str, text->currentStringLength);
+		fprintf(stdout, "%s\n", result);
 
-			fprintf(stdout, "%s\n", result);
+		d_string_free(text, true);
+		free(result);
+	} else  if (argc == 2) {
+		char * text = argv[1];
 
-			d_string_free(text, true);
-			free(result);
-		} else  if (argc == 2) {
-			char * text = argv[1];
+		char * result = title_case_string(text);
 
-			char * result = title_case_string(text);
+		fprintf(stdout, "%s\n", result);
 
-			fprintf(stdout, "%s\n", result);
-
-			free(result);
-		}
+		free(result);
 	}
+}
