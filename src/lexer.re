@@ -280,7 +280,8 @@ char * core_case_string_len(const char * str, size_t len, short case_type) {
 	utf8proc_ssize_t utf8_post_len = 0;
 	unsigned char * encoded[4];
 
-	DString * in = d_string_new(str);
+	DString * in = d_string_new("");
+	d_string_append_c_array(in, str, len);
 	bool lc = true;
 	char * test = in->str;
 
