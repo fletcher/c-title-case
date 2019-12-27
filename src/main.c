@@ -113,11 +113,16 @@ int main( int argc, char ** argv ) {
 		free(result);
 	} else  if (argc == 2) {
 		char * text = argv[1];
+        DString * s = scan_file(text);
 
-		char * result = title_case_string(text);
+        if (s) {
+            //        char * result = title_case_string(text);
+            char * result = title_case_string_len(s->str, s->currentStringLength);
 
-		fprintf(stdout, "%s\n", result);
+            fprintf(stdout, "%s\n", result);
 
-		free(result);
+            free(result);
+            d_string_free(s, true);
+        }
 	}
 }
