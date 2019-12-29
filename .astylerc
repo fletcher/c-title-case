@@ -4,6 +4,8 @@
 
 # Brace style
 --style=java
+--break-one-line-headers
+--add-braces
 
 
 # Indents
@@ -21,7 +23,7 @@
 # Indent pre-processor directives
 --indent-preproc-block
 --indent-preproc-define
---indent-preproc-cond
+# --indent-preproc-cond
 
 
 # Line endings
@@ -42,12 +44,18 @@
 
 
 # Pointers/References
+--align-pointer=middle
 --align-reference=name
 
 
+# Line endings
+--lineend=linux
+
+
+# Objective-C
+# --align-method-colon
+
+
 # Excludes
---exclude="src/critic.c"
---exclude="src/smartenter.c"
---exclude="src/smartenter_parser.c"
 
 --ignore-exclude-errors

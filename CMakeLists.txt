@@ -8,14 +8,14 @@ cmake_minimum_required (VERSION 2.6)
 set (My_Project_Title "cTitleCase")
 set (My_Project_Description "Apply title case rules.")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2018-10-14")
+set (My_Project_Revised_Date "2019-12-29")
 set (My_Project_Version_Major 1)
-set (My_Project_Version_Minor 0)
-set (My_Project_Version_Patch 12)
+set (My_Project_Version_Minor 2)
+set (My_Project_Version_Patch 0)
 
 set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 
-set (My_Project_Copyright_Date "2017-2018")
+set (My_Project_Copyright_Date "2017-2019")
 set (My_Project_Copyright "Copyright © ${My_Project_Copyright_Date} ${My_Project_Author}.")
 
 string(TOUPPER ${My_Project_Title} My_Project_Title_Caps  )
@@ -45,6 +45,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 else()
 	add_definitions("-std=c99")
 endif()
+
+include_directories(${PROJECT_SOURCE_DIR}/submodules/utf8proc)
 
 
 # =================
@@ -93,12 +95,12 @@ MACRO(ADD_PUBLIC_HEADER target filename)
 	
 	SET_TARGET_PROPERTIES(${target} PROPERTIES
 		XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS
-		"macos iphonesimulator iphoneos"
+		"macos iphonesimulator iphoneos macosx"
 	)
 
 	SET_TARGET_PROPERTIES(${target} PROPERTIES
 		XCODE_ATTRIBUTE_VALID_ARCHITECTURES
-		"x86_64 i386 armv6 armv7 armv7s arm64"
+		"x86_64 armv6 armv7 armv7s arm64"
 	)
 
 ENDMACRO(ADD_PUBLIC_HEADER)
@@ -187,11 +189,13 @@ set(public_header_files
 # Utility source files will not be included in doxygen
 set(src_utility_files
 #	src/d_string.c
+	submodules/utf8proc/utf8proc.c
 )
 
 set(header_utility_files
 #	src/d_string.h
 	${PROJECT_BINARY_DIR}/version.h
+	submodules/utf8proc/utf8proc.h
 )
 
 # Generate doxygen configuration file
@@ -262,9 +266,9 @@ if (APPLE)
 	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.6" CACHE STRING "Deployment target for OSX" FORCE)
 	SET(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Deployment target for iOS" FORCE)
 
-	# Compile for x86_64 and i386.  ppc no longer supported
+	# Compile for x86_64. i386 and ppc no longer supported
 	if(CMAKE_BUILD_TYPE MATCHES "Release")
-		SET (CMAKE_OSX_ARCHITECTURES x86_64;i386)
+		SET (CMAKE_OSX_ARCHITECTURES x86_64)
 	endif(CMAKE_BUILD_TYPE MATCHES "Release")
 
 	# Use PackageMaker for installers?
@@ -330,6 +334,7 @@ SET_TARGET_PROPERTIES(libTitleCase PROPERTIES
 	FRAMEWORK TRUE
 	FRAMEWORK_VERSION A
 	MACOSX_FRAMEWORK_IDENTIFIER net.fletcherpenney.titlecase
+	XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "net.fletcherpenney.titlecase"
 )
 
 # Create a command-line app?
