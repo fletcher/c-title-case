@@ -338,7 +338,8 @@ SET_TARGET_PROPERTIES(libTitleCase PROPERTIES
 )
 
 # Create a command-line app?
-if (NOT DEFINED TEST)
+if(hasParent)
+else()
 	add_executable(titlecase
 		src/main.c
 		src/d_string.c
