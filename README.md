@@ -2,11 +2,11 @@
 
 |            |                           |  
 | ---------- | ------------------------- |  
-| Title:     | cTitleCase        |  
+| Title:     | libTitleCase        |  
 | Author:    | Fletcher T. Penney       |  
-| Date:      | 2019-12-29 |  
-| Copyright: | Copyright © 2017-2019 Fletcher T. Penney.    |  
-| Version:   | 1.2.0      |  
+| Date:      | 2020-04-25 |  
+| Copyright: | Copyright © 2017-2020 Fletcher T. Penney.    |  
+| Version:   | 1.3.0      |  
 
 
 ## Introduction ##

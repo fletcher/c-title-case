@@ -1,137 +1,159 @@
-cmake_minimum_required (VERSION 2.6)
+#
+#	Boilerplate CMake configuration for a cross-platform library, 
+#	including configuration for a static framework on Xcode/macOS/iOS
+#
+#	Designed by Fletcher T. Penney
+#	See the LICENSE file for copyright and licensing information.
+#
+
+cmake_minimum_required(VERSION 2.6)
 
 
-# ==================
-# Define Our Project
-# ==================
+# ===================
+# Customize This Part
+# ===================
 
-set (My_Project_Title "cTitleCase")
-set (My_Project_Description "Apply title case rules.")
+# Project Description
+
+set (My_Project_Title "libTitleCase")
+set (My_Project_Description "Apply English title case rules")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2019-12-29")
+set (My_Project_Revised_Date "2020-04-25")
 set (My_Project_Version_Major 1)
-set (My_Project_Version_Minor 2)
+set (My_Project_Version_Minor 3)
 set (My_Project_Version_Patch 0)
 
-set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
+set (My_Project_Copyright_Date "2017-2020")
 
-set (My_Project_Copyright_Date "2017-2019")
+set (My_Project_Identifier "net.fletcherpenney.titlecase")
+
+# Source files and headers
+
+set(src_files
+	src/char.c
+	src/lexer.c
+	src/d_string.c
+	submodules/utf8proc/utf8proc.c
+)
+
+set(public_headers
+	src/libTitleCase.h
+)
+
+set(private_headers
+	src/char.h
+	src/lexer.h
+	src/d_string.h
+	submodules/utf8proc/utf8proc.h
+	version.h
+)
+
+set(resources
+)
+
+set(main_storyboard
+)
+
+# Include other CMake projects?
+# add_subdirectory(submodules/foo)
+
+include_directories(submodules/utf8proc)
+
+# Libraries for linking
+# on macOS can link to frameworks using: "-framework QuartzCore", for example
+set(libraries_to_link
+)
+
+# This is an ugly hack, but it seems to work.
+# When linking to a framework in Xcode, we need to be able to
+# search for public headers within that framework
+# "$SRCROOT/build-xcode/submodules/libFoo/$<CONFIG>/libFoo.framework/.."
+# 
+set(framework_search_paths
+)
+
+# Link to Cocoa Framework?
+# set (link_to_cocoa 1)
+
+# Enable ARC for Obj-C?
+# set (enable_arc 1)
+
+
+# =======================
+# Leave the rest alone...
+# =======================
+
+# Configuration
+
+set (My_Project_Version "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 set (My_Project_Copyright "Copyright © ${My_Project_Copyright_Date} ${My_Project_Author}.")
 
 string(TOUPPER ${My_Project_Title} My_Project_Title_Caps  )
 string(REGEX REPLACE " " "_" My_Project_Title_Caps ${My_Project_Title_Caps} )
 
-project (${My_Project_Title})
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
+project (${My_Project_Title} VERSION "${My_Project_Version}")
 
 
-# =========================
-# Build Submodules (if any)
-# =========================
-
-# add_subdirectory(submodules/foo)
+# Search source directory
+include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/test)
 
 
-# =================
-# Configure Project
-# =================
-
-# Search for included files here
-include_directories( ${PROJECT_SOURCE_DIR}/src )
-include_directories( ${PROJECT_SOURCE_DIR}/test )
+# Search build directory (for version.h)
 include_directories(${PROJECT_BINARY_DIR})
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	# using Clang
-else()
-	add_definitions("-std=c99")
-endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/submodules/utf8proc)
+# Configure library/framework
 
+add_library("${My_Project_Title}"
+	STATIC
+	${src_files}
+	${private_headers}
+	${public_headers}
+	${resources}
+)
 
-# =================
-# Macro Definitions
-# =================
+string (REPLACE ";" " " framework_search_paths_string "${framework_search_paths}")
 
-MACRO(ADD_PUBLIC_HEADER target filename)
-	# Add filename to public_header_files list, flag it as 
-	# public header for libraries and OS X Frameworks
+set_target_properties("${My_Project_Title}"
+	PROPERTIES
+	PREFIX ""
+	FRAMEWORK_VERSION A
+	MACOSX_FRAMEWORK_IDENTIFIER "${My_Project_Identifier}"
+	XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${My_Project_Identifier}"
+	XCODE_ATTRIBUTE_MARKETING_VERSION ${My_Project_Version}
+	RESOURCE "${resources}"
+	XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS} ${framework_search_paths_string}"
+	PUBLIC_HEADER "${public_headers}"
+)
 
-	# This will work for creating one library/framework with public headers
-	# per project. If you need more than one, you will need to customize
-	# the workflow as appropriate, since there is only one 
-	# public_header_files list.
+# Link to other libraries
+target_link_libraries("${My_Project_Title}"
+	${libraries_to_link}
+)
 
-	# SET_TARGET_PROPERTIES(${target} PROPERTIES PUBLIC_HEADER ${filename})
+# Link to Apple Cocoa Framework?
+if (link_to_cocoa)
+	target_link_libraries("${My_Project_Title}" "-framework Cocoa")
+endif (link_to_cocoa)
 
-	LIST(APPEND public_header_files ${filename})
-
-	SET_SOURCE_FILES_PROPERTIES(
-		${filename}
-		PROPERTIES
-		MACOSX_PACKAGE_LOCATION
-		include/\${PRODUCT_NAME}
+# Enable ARC
+if (enable_arc)
+	set_property (TARGET "${My_Project_Title}"
+		APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc"
 	)
-
-	# Set Xcode project to configure public header location to allow
-	# use when this project is used in another workspace.
-	# NOTE: You must manually add a "Headers" build phase and add
-	# the desired public headers to that list for Xcode to use them.
-	#
-	# TODO: If anyone knows how to automate that in Cmake, I would be very
-	# grateful!!
-
-	SET_TARGET_PROPERTIES(${target} PROPERTIES
-		XCODE_ATTRIBUTE_PUBLIC_HEADERS_FOLDER_PATH
-		"include/$(TARGET_NAME)"
-	)
-
-	SET_TARGET_PROPERTIES(${target} PROPERTIES
-		XCODE_ATTRIBUTE_PRIVATE_HEADERS_FOLDER_PATH
-		"$(PUBLIC_HEADERS_FOLDER_PATH)/Private"
-	)
-	
-	# Set Xcode target to include settings for OS X and iOS
-	
-	SET_TARGET_PROPERTIES(${target} PROPERTIES
-		XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS
-		"macos iphonesimulator iphoneos macosx"
-	)
-
-	SET_TARGET_PROPERTIES(${target} PROPERTIES
-		XCODE_ATTRIBUTE_VALID_ARCHITECTURES
-		"x86_64 armv6 armv7 armv7s arm64"
-	)
-
-ENDMACRO(ADD_PUBLIC_HEADER)
-
-
-# The target should be an OS X Bundle with a PList
-
-MACRO(MAKE_TARGET_BUNDLE targetname)
-
-	set_target_properties(
-		${targetname}
-		PROPERTIES
-		MACOSX_BUNDLE_INFO_PLIST
-		${PROJECT_SOURCE_DIR}/templates/plist.in
-	)
-
-ENDMACRO(MAKE_TARGET_BUNDLE)
-
-
-MACRO(ADD_LINKED_FRAMEWORK frame)
-
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGES} -framework ${frame}")
-
-ENDMACRO(ADD_LINKED_FRAMEWORK)
+endif (enable_arc)
 
 
 # ======================
 # Process Template Files
 # ======================
 
-file(READ ${PROJECT_SOURCE_DIR}/LICENSE.txt My_Project_License)
+file(READ ${PROJECT_SOURCE_DIR}/LICENSE My_Project_License)
 
 string(REGEX REPLACE "\n" "\n\t" My_Project_License_Indented ${My_Project_License})
 
@@ -162,52 +184,6 @@ configure_file (
 )
 
 
-# ============
-# Source Files
-# ============
-
-# src_files are the primary files, and will be included in doxygen documentation
-set(src_files
-	src/char.c
-	src/lexer.c
-	src/d_string.c
-)
-
-# Primary header files, also for doxygen documentation
-set(header_files
-	src/char.h
-	src/lexer.h
-	src/libTitleCase.h
-	src/d_string.h
-)
-
-# Public headers, will be installed in 'include'
-# Do not manually add files here, use the ADD_PUBLIC_HEADER() macro
-set(public_header_files
-)
-
-# Utility source files will not be included in doxygen
-set(src_utility_files
-#	src/d_string.c
-	submodules/utf8proc/utf8proc.c
-)
-
-set(header_utility_files
-#	src/d_string.h
-	${PROJECT_BINARY_DIR}/version.h
-	submodules/utf8proc/utf8proc.h
-)
-
-# Generate doxygen configuration file
-string(REPLACE ";" " " doxygen_src_files "${src_files}" )
-string(REPLACE ";" " " doxygen_header_files "${header_files}" )
-
-configure_file (
-	"${PROJECT_SOURCE_DIR}/templates/doxygen.conf.in"
-	"${PROJECT_BINARY_DIR}/doxygen.conf"
-)
-
-
 # ===========================================
 # Build Test Suite with CuTest (unit testing)
 # ===========================================
@@ -215,187 +191,152 @@ configure_file (
 # from http://stackoverflow.com/questions/25199677/how-to-detect-if-current-scope-has-a-parent-in-cmake
 get_directory_property(hasParent PARENT_DIRECTORY)
 
+
+set(test_files
+	test/CuTest.c
+	test/CuTest.h
+	${PROJECT_BINARY_DIR}/AllTests.c
+)
+
+
+# Process source files to look for tests to run
+add_custom_command (
+	OUTPUT ${PROJECT_BINARY_DIR}/AllTests.c
+	COMMAND bash ${PROJECT_SOURCE_DIR}/test/make-tests.sh ${PROJECT_SOURCE_DIR}/src/*.c > ${PROJECT_BINARY_DIR}/AllTests.c
+)
+
+
 if(hasParent)
 	# Don't create "run_tests" when we're a sub-project for something else
 else()
-	set(test_files
-		test/CuTest.c
-		test/CuTest.h
-		${PROJECT_BINARY_DIR}/AllTests.c
+	# Only create framework if we are the parent project
+	set_target_properties("${My_Project_Title}"
+		PROPERTIES
+		FRAMEWORK TRUE
 	)
 
 	if (DEFINED TEST)
 		add_definitions(-DTEST)
 
 		add_executable(run_tests
-			${test_files}
 			${src_files}
-			${header_files}
-			${src_utility_files}
-			${header_utility_files}
+			${private_headers}
+			${public_headers}
+			${test_files}
 		)
 
-		# Process source files to look for tests to run
-		add_custom_command (
-			OUTPUT ${PROJECT_BINARY_DIR}/AllTests.c
-			COMMAND bash ${PROJECT_SOURCE_DIR}/test/make-tests.sh ${PROJECT_SOURCE_DIR}/src/*.c > ${PROJECT_BINARY_DIR}/AllTests.c
+		# Link to other libraries
+		target_link_libraries(run_tests
+			${libraries_to_link}
 		)
+
+		# Link to Apple Cocoa Framework?
+		if (link_to_cocoa)
+			target_link_libraries(run_tests "-framework Cocoa")
+		endif (link_to_cocoa)
+
+		# Enable ARC
+		if (enable_arc)
+			set_property (TARGET run_tests
+				APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc"
+			)
+		endif (enable_arc)
 
 		enable_testing()
 
 		add_test( test ${PROJECT_BINARY_DIR}/run_tests)
 
 		# valgrind memory testing
-		find_program (MEMORYCHECK_COMMAND valgrind)
-		SET (MEMORYCHECK_COMMAND_OPTIONS --leak-check=full --error-exitcode=1)
-
-		add_test( memory_test ${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS} ${PROJECT_BINARY_DIR}/run_tests)
+	#	find_program (MEMORYCHECK_COMMAND valgrind)
+	#	SET (MEMORYCHECK_COMMAND_OPTIONS --leak-check=full --error-exitcode=1)
+	#
+	#	add_test( memory_test ${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS} ${PROJECT_BINARY_DIR}/run_tests)
 
 	endif()
 endif()
-
-
-# =======================
-# Configure for Target OS
-# =======================
-
-# OS X Builds
-if (APPLE)
-
-	# Configure backwards-compatible support (if your project allows it)
-	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.6" CACHE STRING "Deployment target for OSX" FORCE)
-	SET(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "10.0" CACHE STRING "Deployment target for iOS" FORCE)
-
-	# Compile for x86_64. i386 and ppc no longer supported
-	if(CMAKE_BUILD_TYPE MATCHES "Release")
-		SET (CMAKE_OSX_ARCHITECTURES x86_64)
-	endif(CMAKE_BUILD_TYPE MATCHES "Release")
-
-	# Use PackageMaker for installers?
-	if (DEFINED ZIP)
-		set (CPACK_GENERATOR ZIP)
-	else (DEFINED ZIP)
-		set (CPACK_GENERATOR PackageMaker)
-	endif (DEFINED ZIP)
-
-endif (APPLE)
-
-# Windows Builds
-if (WIN32)
-
-	# Use NSIS to generate installers?
-	if (DEFINED ZIP)
-		set (CPACK_GENERATOR ZIP)
-	else (DEFINED ZIP)
-		set (CPACK_GENERATOR NSIS)
-	endif (DEFINED ZIP)
-
-# Linux Builds (not cross-compiling for Windows)
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-	# Create zip archive
-	set (CPACK_GENERATOR ZIP)
-
-	# Statically link libraries -- might make the binary slightly more
-	# compatible across Linux distributions, for example
-	#
-	# You may wish to disable this.
-	#
-	
-	set (CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-	set (BUILD_SHARED_LIBRARIES OFF)
-	set (CMAKE_EXE_LINKER_FLAGS "-static")
-
-	# Some libraries need to be linked on some Linux builds
-	if (DEFINED TEST)
-		# target_link_libraries(run_tests m)
-	endif (DEFINED TEST)
-
-endif (WIN32)
-
-
-# ==============
-# Define targets
-# ==============
-
-# Create a library?
-add_library(libTitleCase STATIC
-	${src_files}
-	${src_utility_files}
-	${header_files}
-	${header_utility_files}
-)
-
-ADD_PUBLIC_HEADER(libTitleCase src/libTitleCase.h)
-
-# remove the extra "lib" from "liblibFOO"
-SET_TARGET_PROPERTIES(libTitleCase PROPERTIES
-	PREFIX ""
-	FRAMEWORK TRUE
-	FRAMEWORK_VERSION A
-	MACOSX_FRAMEWORK_IDENTIFIER net.fletcherpenney.titlecase
-	XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "net.fletcherpenney.titlecase"
-)
-
-# Create a command-line app?
-if(hasParent)
-else()
-	add_executable(titlecase
-		src/main.c
-		src/d_string.c
-		src/d_string.h
-		${header_files}
-	)
-
-#	Link the library to the app?
-	target_link_libraries(titlecase libTitleCase)
-
-	set_target_properties(titlecase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
-endif()
-
-# Xcode settings for fat binaries
-set_target_properties(libTitleCase PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "NO")
 
 
 # ==========================
 # Build Installer with CPack
 # ==========================
 
-# You're largely on your own here
-
-# install (FILES ${CMAKE_CURRENT_LIST_DIR}/README.md ${PROJECT_SOURCE_DIR}/LICENSE.txt
-# 	DESTINATION .
-# )
-
-# Use something like this to install public header files (after adding them
-# with the ADD_PUBLIC_HEADER() macro)
-
-# install (FILES ${public_header_files} DESTINATION local/include/libFoo) 
-
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "${My_Project_Description}")
-set (CPACK_PACKAGE_VENDOR "${My_Project_Author}")
 set (CPACK_PACKAGE_VERSION "${My_Project_Version_Major}.${My_Project_Version_Minor}.${My_Project_Version_Patch}")
 set (CPACK_PACKAGE_VERSION_MAJOR "${My_Project_Version_Major}")
 set (CPACK_PACKAGE_VERSION_MINOR "${My_Project_Version_Minor}")
 set (CPACK_PACKAGE_VERSION_PATCH "My_Project_Version_Patch")
 
-set (CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+configure_file (
+	"${PROJECT_SOURCE_DIR}/LICENSE"
+	"${PROJECT_BINARY_DIR}/LICENSE.txt"
+)
+configure_file (
+	"${PROJECT_SOURCE_DIR}/README.md"
+	"${PROJECT_BINARY_DIR}/README.txt"
+)
 
-if (APPLE)
-	set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-Mac-${CPACK_PACKAGE_VERSION}")
-else (APPLE)
-	set (CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${CMAKE_SYSTEM_NAME}-${CPACK_PACKAGE_VERSION}")
-endif (APPLE)
+set (CPACK_RESOURCE_FILE_LICENSE "${PROJECT_BINARY_DIR}/LICENSE.txt")
+set (CPACK_RESOURCE_FILE_README "${PROJECT_BINARY_DIR}/README.txt")
 
-# Use some default install locations (if appropriate)
-set(CPACK_SET_DESTDIR true)
-if (WIN32)
-	set (CPACK_INSTALL_PREFIX "")
-	set (CPACK_NSIS_MODIFY_PATH ON)
-else (WIN32)
-	set (CPACK_INSTALL_PREFIX /usr/local)
-endif (WIN32)
+if (DEFINED TEST)
+	# Don't install the test suite
+else()
+	if (APPLE)
+		# Apple Builds
 
-set (CPACK_PACKAGE_INSTALL_DIRECTORY ${PROJECT})
+		if (DEFINED ZIP)
+			set (CPACK_GENERATOR ZIP)
+		else (DEFINED ZIP)
+			set (CPACK_GENERATOR productbuild)
+		endif (DEFINED ZIP)
+	else (APPLE)
+		if (WIN32)
+			# Windows Builds
 
-include (CPack)
+			if (DEFINED ZIP)
+				set (CPACK_GENERATOR ZIP)
+			else (DEFINED ZIP)
+				set (CPACK_GENERATOR NSIS)
+			endif (DEFINED ZIP)
+		elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+			# Linux
+			set (CPACK_GENERATOR ZIP)
+		endif (WIN32)
+	endif (APPLE)
+
+	# Install Target
+	install (TARGETS ${My_Project_Title}
+		DESTINATION bin
+		COMPONENT Main
+	)
+	set (CPACK_COMPONENT_MAIN_DISPLAY_NAME "${My_Project_Title}")
+	set (CPACK_COMPONENT_MAIN_DESCRIPTION "Install ${My_Project_Title}.")
+
+	if (public_headers)
+		# Install Headers
+		install(FILES
+			${public_headers}
+			DESTINATION include/${My_Project_Title}
+			COMPONENT Headers
+		)
+		set (CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Development")
+		set (CPACK_COMPONENT_HEADERS_DESCRIPTION "Install the public headers for development use.")
+
+		set (CPACK_COMPONENTS_ALL Main Headers)
+	else (public_headers)
+		set (CPACK_COMPONENTS_ALL Main)
+	endif (public_headers)
+
+	# Install Documentation
+	install(FILES
+		"${PROJECT_BINARY_DIR}/LICENSE.txt"
+		"${PROJECT_BINARY_DIR}/README.txt"
+		COMPONENT Docs
+		DESTINATION .
+	)
+	set (CPACK_COMPONENT_DOCS_DISPLAY_NAME "Documentation")
+	set (CPACK_COMPONENT_DOCS_DESCRIPTION "Install README and LICENSE.")
+
+endif (DEFINED TEST)
+
+include(CPack)

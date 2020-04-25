@@ -4,8 +4,6 @@
 
 # Brace style
 --style=java
---break-one-line-headers
---add-braces
 
 
 # Indents
@@ -52,10 +50,7 @@
 --lineend=linux
 
 
-# Objective-C
-# --align-method-colon
-
-
 # Excludes
 
 --ignore-exclude-errors
+
