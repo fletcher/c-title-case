@@ -129,6 +129,7 @@ set_target_properties("${My_Project_Title}"
 	RESOURCE "${resources}"
 	XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS} ${framework_search_paths_string}"
 	PUBLIC_HEADER "${public_headers}"
+	ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
 )
 
 # Link to other libraries
