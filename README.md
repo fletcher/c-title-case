@@ -2,7 +2,7 @@
 
 |            |                           |  
 | ---------- | ------------------------- |  
-| Title:     | cTitleCase        |  
+| Title:     | libTitleCase        |  
 | Author:    | Fletcher T. Penney       |  
 | Date:      | 2025-11-01 |  
 | Copyright: | Copyright © 2017-2025 Fletcher T. Penney.    |  

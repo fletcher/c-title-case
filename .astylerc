@@ -4,8 +4,6 @@
 
 # Brace style
 --style=java
---break-one-line-headers
---add-braces
 
 
 # Indents
@@ -30,8 +28,8 @@
 --lineend=linux
 
 
-# Add brackets to one-liners
---add-brackets
+# Add braces to one-liners
+--add-braces
 
 
 # Pad with blank lines
@@ -39,8 +37,13 @@
 
 
 # Pad with spaces
+--pad-comma
 --pad-oper
 --pad-header
+--pad-method-prefix
+--pad-method-colon=none
+--pad-return-type
+--unpad-param-type
 
 
 # Pointers/References
@@ -52,10 +55,7 @@
 --lineend=linux
 
 
-# Objective-C
-# --align-method-colon
-
-
 # Excludes
 
 --ignore-exclude-errors
+
