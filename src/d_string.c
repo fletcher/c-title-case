@@ -85,7 +85,7 @@
 // Some operating systems do not supply vasprintf() -- standardize on this
 // replacement from:
 //		https://github.com/esp8266/Arduino/issues/1954
-int vasprintf(char ** strp, const char * fmt, va_list ap) {
+static int my_vasprintf(char ** strp, const char * fmt, va_list ap) {
 	va_list ap2;
 	va_copy(ap2, ap);
 
@@ -389,7 +389,7 @@ void d_string_append_printf(DString * baseString, const char * format, ...) {
 		va_start(args, format);
 
 		char * formattedString = NULL;
-		vasprintf(&formattedString, format, args);
+		my_vasprintf(&formattedString, format, args);
 
 		if (formattedString != NULL) {
 			d_string_append(baseString, formattedString);
@@ -614,7 +614,7 @@ void d_string_insert_printf(DString * baseString, size_t pos, const char * forma
 		va_start(args, format);
 
 		char * formattedString = NULL;
-		vasprintf(&formattedString, format, args);
+		my_vasprintf(&formattedString, format, args);
 
 		if (formattedString != NULL) {
 			d_string_insert(baseString, pos, formattedString);
