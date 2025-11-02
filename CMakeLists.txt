@@ -23,7 +23,7 @@ set (My_Project_Version_Major 1)
 set (My_Project_Version_Minor 3)
 set (My_Project_Version_Patch 0)
 
-set (My_Project_Copyright_Date "2017-2020")
+set (My_Project_Copyright_Date "2017-2025")
 
 set (My_Project_Identifier "net.fletcherpenney.titlecase")
 
