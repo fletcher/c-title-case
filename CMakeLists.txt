@@ -18,14 +18,17 @@ cmake_minimum_required(VERSION 3.28)
 set (My_Project_Title "libTitleCase")
 set (My_Project_Description "Apply English title case rules")
 set (My_Project_Author "Fletcher T. Penney")
-set (My_Project_Revised_Date "2025-11-01")
+set (My_Project_Revised_Date "2025-11-06")
 set (My_Project_Version_Major 1)
-set (My_Project_Version_Minor 3)
+set (My_Project_Version_Minor 4)
 set (My_Project_Version_Patch 0)
 
 set (My_Project_Copyright_Date "2017-2025")
 
 set (My_Project_Identifier "net.fletcherpenney.titlecase")
+
+string(TIMESTAMP My_Build_Version "%Y%m%d.%H.%M" UTC)
+string(TIMESTAMP My_Build_Date "%Y-%m-%d" UTC)
 
 # Source files and headers
 
@@ -91,24 +94,25 @@ set (My_Project_Copyright "Copyright © ${My_Project_Copyright_Date} ${My_Projec
 string(TOUPPER ${My_Project_Title} My_Project_Title_Caps  )
 string(REGEX REPLACE " " "_" My_Project_Title_Caps ${My_Project_Title_Caps} )
 
+string(REGEX REPLACE " " "" My_Project_Title_Clean ${My_Project_Title} )
+
 if (POLICY CMP0048)
   cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
 project (${My_Project_Title} VERSION "${My_Project_Version}")
 
+if (CMAKE_GENERATOR MATCHES "Xcode")
+	set (CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
+endif()
+
 # from http://stackoverflow.com/questions/25199677/how-to-detect-if-current-scope-has-a-parent-in-cmake
 get_directory_property(hasParent PARENT_DIRECTORY)
 
 if (hasParent)
 else()
-	# If building the framework independently, we canset a deployment target
-	# set (CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
-endif()
-
-
-if (CMAKE_GENERATOR MATCHES "Xcode")
-	set (CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
+	# If building the framework independently, we can set a deployment target
+	# set (CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 
 
@@ -123,7 +127,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 # Configure library/framework
 
-add_library("${My_Project_Title}"
+add_library("${My_Project_Title_Clean}"
 	STATIC
 	${src_files}
 	${private_headers}
@@ -133,7 +137,7 @@ add_library("${My_Project_Title}"
 
 string (REPLACE ";" " " framework_search_paths_string "${framework_search_paths}")
 
-set_target_properties("${My_Project_Title}"
+set_target_properties("${My_Project_Title_Clean}"
 	PROPERTIES
 	PREFIX ""
 	FRAMEWORK_VERSION A
@@ -144,19 +148,17 @@ set_target_properties("${My_Project_Title}"
 	XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "${XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS} ${framework_search_paths_string}"
 	PUBLIC_HEADER "${public_headers}"
 	ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+
+	XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES
+	XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=MinSizeRel] NO
+	XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=RelWithDebInfo] NO
+	XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Release] NO
+
+	XCODE_ATTRIBUTE_SDKROOT auto
+	XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "iphoneos iphonesimulator macosx"
+	XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 )
 
-if (hasParent)
-else()
-	set_target_properties("${My_Project_Title}"
-		PROPERTIES
-		XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES
-		XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=MinSizeRel] NO
-		XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=RelWithDebInfo] NO
-		XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Release] NO
-		XCODE_LINK_BUILD_PHASE_MODE "KNOWN_LOCATION"
-	)
-endif()
 
 # Link to other libraries
 target_link_libraries("${My_Project_Title}"

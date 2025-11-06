@@ -4,9 +4,9 @@
 | ---------- | ------------------------- |  
 | Title:     | libTitleCase        |  
 | Author:    | Fletcher T. Penney       |  
-| Date:      | 2025-11-01 |  
+| Date:      | 2025-11-06 |  
 | Copyright: | Copyright © 2017-2025 Fletcher T. Penney.    |  
-| Version:   | 1.3.0      |  
+| Version:   | 1.4.0      |  
 
 
 ## Introduction ##
